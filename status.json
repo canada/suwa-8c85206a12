@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T05:10+09:00",
+ "updated": "2026-11-27T05:15+09:00",
  "lines": [
   {
    "name": "西武池袋線",
@@ -58,105 +58,6 @@
    "url": "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
   }
  ],
- "roads": [
-  {
-   "road": "中央道（上り）",
-   "where": "桃花台バス停付近 →小牧東IC付近",
-   "what": "路肩規制",
-   "why": "工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "多治見IC付近",
-   "what": "第1走行規制",
-   "why": "故障車",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "屏風山PA付近",
-   "what": "路肩規制",
-   "why": "工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "岡谷JCT →花岡トンネル入口",
-   "what": "追越車線規制",
-   "why": "橋架補修作業",
-   "near": true,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "笹子トンネル付近 →笹子バス停付近",
-   "what": "第1走行規制",
-   "why": "舗装工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "小仏トンネル付近 →小仏トンネル出口",
-   "what": "2車線規制",
-   "why": "トンネル工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（上り）",
-   "where": "双葉スマートIC入口(高井戸IC方面)",
-   "what": "通行止",
-   "why": "工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（下り）",
-   "where": "恵那IC先 →屏風山PA付近",
-   "what": "第1走行規制",
-   "why": "工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "中央道（下り）",
-   "where": "小牧東IC付近 →桃花台バス停付近",
-   "what": "路肩規制",
-   "why": "工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/road/1033006/list"
-  },
-  {
-   "road": "長野道（上り）",
-   "where": "姨捨SA・スマートIC →一本松トンネル",
-   "what": "第1走行規制",
-   "why": "トンネル工事",
-   "near": false,
-   "url": "https://roadway.yahoo.co.jp/traffic/pref/20/road/1039006/list"
-  },
-  {
-   "road": "長野道（上り）",
-   "where": "みどり湖PA付近 →岡谷トンネル入口",
-   "what": "追越車線規制",
-   "why": "工事",
-   "near": true,
-   "url": "https://roadway.yahoo.co.jp/traffic/pref/20/road/1039006/list"
-  },
-  {
-   "road": "長野道（上り）",
-   "where": "岡谷トンネル入口 →岡谷JCT",
-   "what": "第1走行規制",
-   "why": "工事",
-   "near": true,
-   "url": "https://roadway.yahoo.co.jp/traffic/pref/20/road/1039006/list"
-  }
- ],
  "azusa_note": "現在、運休情報はありません。",
- "azusa_at": "2026-11-27T05:10+09:00",
- "roads_at": "11月27日 4時55分 現在"
+ "azusa_at": "2026-11-27T05:15+09:00"
 }
