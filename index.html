@@ -71,7 +71,7 @@ const tz={timeZone:'Asia/Tokyo'};
 const hm=d=>d.toLocaleTimeString('ja-JP',{...tz,hour:'2-digit',minute:'2-digit'});
 const md=d=>d.toLocaleDateString('ja-JP',{...tz,month:'numeric',day:'numeric'});
 function row(cells,cls){const tr=document.createElement('tr');if(cls)tr.className=cls;
- cells.forEach(c=>{const td=document.createElement(c.th?'th':'td');
+ cells.forEach(c=>{if(typeof c!=='object')c={text:String(c)};const td=document.createElement(c.th?'th':'td');
   if(c.href){const a=document.createElement('a');a.href=c.href;a.textContent=c.text;td.append(a)}else td.textContent=c.text??c;
   if(c.sub){const s=document.createElement('small');s.textContent=' '+c.sub;td.append(document.createElement('br'),s)}
   tr.append(td)});return tr}
