@@ -54,6 +54,7 @@ tr.cur td{background:var(--accent-soft)}
 .seg{display:flex;gap:6px;margin-top:8px}
 .seg button{flex:1;min-height:40px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;font:inherit;font-size:14px}
 .seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+img.map{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--rule)}
 .place{padding:12px 0;border-top:1px solid var(--rule)}.place:first-of-type{border-top:0}
 .place h3{margin:0;font-size:17px}.place h3 small{display:block;font-size:13px;font-weight:400;color:var(--sub)}
 .place p{margin:4px 0 0;font-size:15px}.place a{display:inline-block;min-height:32px;padding:4px 0;font-weight:600}
@@ -96,6 +97,14 @@ footer{padding:24px 20px 48px;margin-top:20px;border-top:1px solid var(--rule);f
 <section>
  <h2>行程</h2>
  <div class="scroll"><table id="plan"></table></div>
+</section>
+
+<section>
+ <h2>諏訪五蔵 <small>11/27 金は全蔵営業</small></h2>
+ <img class="map" src="gokura-map.png" alt="上諏訪駅・宿・古畑・五蔵の位置関係の地図" width="1049" height="1267">
+ <p class="note">駅から甲州街道（地図の太い道）を南東へ。舞姫〜真澄は約500m。試飲は営業終了の30分前まで（本金は16:45）。</p>
+ <div class="scroll"><table id="kura"></table></div>
+ <p class="note">ごくらくセットの引換は上諏訪駅内の諏訪市観光案内所（<a href="tel:0266580120">0266-58-0120</a>）。出典: 諏訪五蔵公式（11月の営業内容）</p>
 </section>
 
 <section>
@@ -174,6 +183,17 @@ const wxCell=(code,text,sub)=>({text,sub,cls:'wx',icon:code?`https://www.jma.go.
 const fill=(id,rows)=>$(id).replaceChildren(...rows);
 const getJSON=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
 const fail=(id,e)=>fill(id,[row(['取得できませんでした（'+e.message+'）'])]);
+
+const KURA=[
+ ['1','舞姫','株式会社舞姫','諏訪市諏訪2-9-25','0266-52-0078','9:30〜17:00'],
+ ['2','麗人','麗人酒造','諏訪市諏訪2-9-21','0266-52-3121','9:00〜17:00（日曜休）'],
+ ['3','本金','酒ぬのや本金酒造','諏訪市諏訪2-8-21','0266-58-0161','平日 9:00〜17:00（火曜は午後休）'],
+ ['4','横笛','伊東酒造','諏訪市諏訪2-3-6','0266-52-0108','10:00〜17:00'],
+ ['5','真澄','宮坂醸造（セラ真澄）','諏訪市元町1-16','0266-52-6161','10:00〜17:00（水曜休）'],
+];
+const gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+fill('kura',[row(['','蔵','営業','電話','地図'].map(t=>({text:t,th:1}))),...KURA.map(([n,name,co,addr,tel,hours])=>
+ row([{text:n,cls:'t'},{text:name,sub:co+'・'+addr},hours,{text:tel,href:'tel:'+tel.replace(/-/g,'')},{text:'地図',href:gmap(co+' 長野県'+addr)}]))]);
 
 function plan(){
  const now=new Date();let cur=-1;PLAN.forEach((p,i)=>{if(p.t<=now)cur=i});
