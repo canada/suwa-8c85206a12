@@ -34,17 +34,15 @@ th,td{padding:9px 10px 9px 0;border-top:1px solid var(--rule);text-align:left;ve
 tr:first-child th,tr:first-child td{border-top:0}
 th{font-size:13px;font-weight:400;color:var(--faint)}
 td.num{font-variant-numeric:tabular-nums;text-align:right}
-td.wrap{white-space:normal;min-width:12em}
 img.wxi{width:34px;height:auto;vertical-align:middle;margin-right:6px}
-td.wx.wrap{padding-left:40px;position:relative}td.wx.wrap img.wxi{position:absolute;left:0;top:10px}
-td small{display:block;font-size:13px;color:var(--sub);white-space:normal}
+td.wx.day{padding-left:40px;position:relative;white-space:normal;min-width:12em}td.wx.day img.wxi{position:absolute;left:0;top:10px}
+td small{display:block;font-size:13px;color:var(--sub)}
 .t{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 .ok{color:var(--ok);font-weight:600}
 tr.bad td{background:var(--warn-soft)}
 .bad-text{color:var(--warn);font-weight:700}
 tr.done td{color:var(--faint)}tr.done .t{color:var(--faint)}
 tr.cur td{background:var(--accent-soft)}
-.near td:first-child::before{content:"● ";color:var(--warn)}
 .note{margin:8px 0 0;font-size:13px;color:var(--faint)}
 .warnbox{border-left:4px solid var(--rule);padding:4px 0 4px 12px}
 .warnbox.on{border-color:var(--warn)}
@@ -105,19 +103,12 @@ footer{padding:24px 20px 48px;margin-top:20px;border-top:1px solid var(--rule);f
 </section>
 
 <section>
- <h2>高速道路の規制 <small id="roadsAt"></small></h2>
- <div class="scroll"><table id="roads"><tr><td>読み込み中</td></tr></table></div>
- <p class="note">● は諏訪周辺。一般道（国道20号など）は下のGoogleマップの交通状況で。</p>
-</section>
-
-<section>
  <h2>リンク</h2>
  <ul class="links">
   <li><a href="https://www.google.com/maps/@36.045,138.115,13z/data=!5m1!1e1">Googleマップ 交通状況（諏訪）</a></li>
   <li><a href="https://www.jma.go.jp/bosai/nowc/#zoom:10/lat:36.04/lon:138.11/colordepth:normal/elements:hrpns">気象庁 雨雲の動き</a></li>
   <li><a href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=200000">気象庁 長野県の予報</a></li>
   <li><a href="https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion">JR東日本 あずさの運行情報</a></li>
-  <li><a href="https://roadway.yahoo.co.jp/traffic/pref/20/list">Yahoo!道路交通情報 長野県</a></li>
   <li><a href="https://www.eki-net.com/">えきねっと</a></li>
  </ul>
 </section>
@@ -163,7 +154,7 @@ const fail=(id,e)=>fill(id,[row(['取得できませんでした（'+e.message+'
 
 function plan(){
  const now=new Date();let cur=-1;PLAN.forEach((p,i)=>{if(p.t<=now)cur=i});
- fill('plan',PLAN.map((p,i)=>row([{text:md(p.t)+' '+hm(p.t),cls:'t'},{text:p.w,cls:'wrap'}],i<cur?'done':i===cur?'cur':'')));
+ fill('plan',PLAN.map((p,i)=>row([{text:md(p.t)+' '+hm(p.t),cls:'t'},p.w],i<cur?'done':i===cur?'cur':'')));
  const n=PLAN[cur+1],b=$('next');
  if(!n){b.replaceChildren(el('span',{textContent:'旅は終わりました。おつかれさま'}));return}
  const m=Math.round((n.t-now)/60000);
@@ -175,13 +166,9 @@ async function status(){
   const L=[...(d.azusa||[]).map(a=>({...a,name:a.name+(d.azusa_at?'（'+d.azusa_at.slice(11,16)+'時点）':'')})),...(d.lines||[])];
   fill('trains',L.map(l=>{const ok=l.status==='平常運転';
    return row([l.name,{text:l.status,href:l.url,cls:ok?'ok':'bad-text',sub:ok?'':l.detail}],ok?'':'bad')}));
-  if(d.azusa_note&&!/ありません/.test(d.azusa_note))$('trains').append(row([{text:'あずさ 運休',cls:'bad-text'},{text:d.azusa_note,cls:'wrap'}],'bad'));
+  if(d.azusa_note&&!/ありません/.test(d.azusa_note))$('trains').append(row([{text:'あずさ 運休',cls:'bad-text'},d.azusa_note],'bad'));
   $('trainsAt').textContent=d.updated.slice(11,16)+' 取得';
-  const R=d.roads||[];
-  fill('roads',R.length?[row([{text:'路線',th:1},{text:'区間',th:1},{text:'内容',th:1},{text:'原因',th:1}]),
-   ...R.sort((a,b)=>b.near-a.near).map(r=>row([r.road,r.where,{text:r.what,cls:/通行止/.test(r.what)?'bad-text':''},r.why],r.near?'near':''))]:[row(['中央道・長野道に規制はありません'])]);
-  $('roadsAt').textContent=(d.roads_at||'').replace(/^\d+月\d+日\s*/,'').replace(' 現在','')+' JARTIC';
- }catch(e){fail('trains',e);fail('roads',e)}
+ }catch(e){fail('trains',e)}
 }
 
 async function warn(){
@@ -203,7 +190,7 @@ async function jma(){
   fill('jma',[row([{text:'日',th:1},{text:'天気（長野県中部）',th:1},{text:'最高/最低',th:1}]),...ts[0].timeDefines.map((t,i)=>{
    const d=t.slice(0,10),mx=T[d+'max'],mn=T[d+'min'];
    const tt=mx&&mn&&mx!==mn?mx+'° / '+mn+'°':mx?mx+'°':mn?'– / '+mn+'°':'';
-   return row([{text:+d.slice(5,7)+'/'+ +d.slice(8),cls:'t'},{...wxCell(a0.weatherCodes[i],a0.weathers[i].replace(/　/g,' '),a0.winds[i].replace(/　/g,' ')),cls:'wx wrap'},{text:tt,cls:'num'}])})]);
+   return row([{text:+d.slice(5,7)+'/'+ +d.slice(8),cls:'t'},{...wxCell(a0.weatherCodes[i],a0.weathers[i].replace(/　/g,' '),a0.winds[i].replace(/　/g,' ')),cls:'wx day'},{text:tt,cls:'num'}])})]);
   $('pops').textContent='降水確率 '+ts[1].timeDefines.map((t,i)=>+t.slice(8,10)+'日'+ +t.slice(11,13)+'時 '+a1.pops[i]+'%').join('　');
   $('jmaAt').textContent='気象庁 '+Number(j.reportDatetime.slice(8,10))+'日'+j.reportDatetime.slice(11,16)+' 発表';
  }catch(e){fail('jma',e)}

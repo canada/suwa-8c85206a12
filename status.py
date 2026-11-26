@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""運行情報（Yahoo!路線情報・JR東日本）と高速道路の規制（Yahoo!道路交通情報）を取って status.json に書く。"""
+"""運行情報（Yahoo!路線情報・JR東日本）を取って status.json に書く。"""
 import html, json, re, urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -15,9 +15,6 @@ LINES = [
     ("5", "中央本線[大月～塩尻]", "JR中央本線 大月〜塩尻"),
 ]
 AZUSA = "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
-ROADS = [("中央道", "https://roadway.yahoo.co.jp/traffic/road/1033006/list"),
-         ("長野道", "https://roadway.yahoo.co.jp/traffic/pref/20/road/1039006/list")]
-NEAR = re.compile("諏訪|岡谷|茅野|小淵沢|富士見|伊北|塩尻|辰野|花岡")
 
 
 def get(url):
@@ -55,30 +52,12 @@ def azusa():
     return [x for x in out if "あずさ" in x["name"]], note
 
 
-def roads():
-    out = []
-    for road, url in ROADS:
-        s = get(url)
-        upd = re.search(r'update-time">([^<]+)<', s)
-        for lane, table in re.findall(r'<h2[^>]*class="ttl-label"[^>]*>([^<]+)</h2>\s*<table class="rinfo-table">(.*?)</table>', s, re.S):
-            for tr in re.findall(r"<tbody>.*?</tbody>", table, re.S)[:1]:
-                for row in re.findall(r"<tr>(.*?)</tr>", tr, re.S):
-                    cells = [text(c) for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
-                    if len(cells) >= 3:
-                        where = " ".join(cells[:-2])
-                        out.append({"road": text(lane), "where": where, "what": cells[-2].replace("[!] ", ""),
-                                    "why": cells[-1], "near": bool(NEAR.search(where)), "url": url})
-        if upd:
-            out_time = upd.group(1)
-    return out, out_time if ROADS else ""
-
-
 try:
     prev = json.load(open("status.json", encoding="utf-8"))
 except Exception:
     prev = {}
 data = {"updated": datetime.now(JST).isoformat(timespec="minutes")}
-for key, fn in [("lines", yahoo_lines), ("azusa", azusa), ("roads", roads)]:
+for key, fn in [("lines", yahoo_lines), ("azusa", azusa)]:
     try:
         data[key] = fn()
     except Exception as e:
@@ -90,8 +69,6 @@ if data["azusa"]:
 elif prev.get("azusa"):
     # GitHub Actions からは JR東日本が 403 を返すので、N100 で取った前回値を残す
     data["azusa"], data["azusa_note"], data["azusa_at"] = prev["azusa"], prev.get("azusa_note", ""), prev.get("azusa_at", "")
-if data["roads"]:
-    data["roads"], data["roads_at"] = data["roads"]
 
 with open("status.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
