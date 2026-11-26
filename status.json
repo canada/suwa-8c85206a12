@@ -1,0 +1,53 @@
+{
+ "updated": "2026-11-27T04:48+09:00",
+ "lines": [
+  {
+   "name": "西武池袋線",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/84/0"
+  },
+  {
+   "name": "東武東上線",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/82/0"
+  },
+  {
+   "name": "JR山手線",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/21/0"
+  },
+  {
+   "name": "JR埼京線",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/50/0"
+  },
+  {
+   "name": "JR湘南新宿ライン",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/25/0"
+  },
+  {
+   "name": "JR中央線快速",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/38/0"
+  },
+  {
+   "name": "JR中央本線 高尾〜大月",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/42/0"
+  },
+  {
+   "name": "JR中央本線 大月〜塩尻",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
+   "url": "https://transit.yahoo.co.jp/diainfo/470/0"
+  }
+ ]
+}
