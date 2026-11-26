@@ -185,7 +185,7 @@ function plan(){
 
 async function status(){
  try{const d=await getJSON('status.json?'+Date.now());
-  const L=[...(d.azusa||[]),...(d.lines||[])];
+  const L=[...(d.azusa||[]).map(a=>({...a,name:a.name+(d.azusa_at?'（'+d.azusa_at.slice(11,16)+'時点）':'')})),...(d.lines||[])];
   fill('trains',L.map(l=>{const ok=l.status==='平常運転';
    return row([l.name,{text:l.status,href:l.url,cls:ok?'ok':'bad-text',sub:ok?'':l.detail}],ok?'':'bad')}));
   if(d.azusa_note&&!/ありません/.test(d.azusa_note))$('trains').append(row([{text:'あずさ 運休',cls:'bad-text'},{text:d.azusa_note,cls:'wrap'}],'bad'));

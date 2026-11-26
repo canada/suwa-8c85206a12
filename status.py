@@ -73,6 +73,10 @@ def roads():
     return out, out_time if ROADS else ""
 
 
+try:
+    prev = json.load(open("status.json", encoding="utf-8"))
+except Exception:
+    prev = {}
 data = {"updated": datetime.now(JST).isoformat(timespec="minutes")}
 for key, fn in [("lines", yahoo_lines), ("azusa", azusa), ("roads", roads)]:
     try:
@@ -82,6 +86,10 @@ for key, fn in [("lines", yahoo_lines), ("azusa", azusa), ("roads", roads)]:
         data.setdefault("errors", []).append(f"{key}: {e}")
 if data["azusa"]:
     data["azusa"], data["azusa_note"] = data["azusa"]
+    data["azusa_at"] = data["updated"]
+elif prev.get("azusa"):
+    # GitHub Actions からは JR東日本が 403 を返すので、N100 で取った前回値を残す
+    data["azusa"], data["azusa_note"], data["azusa_at"] = prev["azusa"], prev.get("azusa_note", ""), prev.get("azusa_at", "")
 if data["roads"]:
     data["roads"], data["roads_at"] = data["roads"]
 
