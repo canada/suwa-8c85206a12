@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="color-scheme" content="light only">
 <title>諏訪旅ライブ</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
   --bg:#f7f6f2;--paper:#fffefb;--ink:#1d2624;--sub:#5d6764;--faint:#8a928f;
@@ -54,7 +56,9 @@ tr.cur td{background:var(--accent-soft)}
 .seg{display:flex;gap:6px;margin-top:8px}
 .seg button{flex:1;min-height:40px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;font:inherit;font-size:14px}
 .seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
-img.map{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--rule)}
+.map{height:420px;border-radius:8px;border:1px solid var(--rule);z-index:0}
+.pin{width:30px;height:30px;border-radius:50%;color:#fff;font:700 14px/26px sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 1px 3px #0006}
+.leaflet-tooltip.lbl{font:600 13px sans-serif;padding:2px 6px}
 .place{padding:12px 0;border-top:1px solid var(--rule)}.place:first-of-type{border-top:0}
 .place h3{margin:0;font-size:17px}.place h3 small{display:block;font-size:13px;font-weight:400;color:var(--sub)}
 .place p{margin:4px 0 0;font-size:15px}.place a{display:inline-block;min-height:32px;padding:4px 0;font-weight:600}
@@ -101,8 +105,9 @@ footer{padding:24px 20px 48px;margin-top:20px;border-top:1px solid var(--rule);f
 
 <section>
  <h2>諏訪五蔵 <small>11/27 金は全蔵営業</small></h2>
- <img class="map" src="gokura-map.png" alt="上諏訪駅・宿・古畑・五蔵の位置関係の地図" width="1049" height="1267">
- <p class="note">駅から甲州街道（地図の太い道）を南東へ。舞姫〜真澄は約500m。試飲は営業終了の30分前まで（本金は16:45）。</p>
+ <div id="lmap" class="map"></div>
+ <p><a id="walk" href="#">Googleマップで徒歩ルート（駅 → 舞姫 → 麗人 → 本金 → 横笛 → 真澄）</a></p>
+ <p class="note">地図は指で拡大・移動できます。五蔵は駅の南東、甲州街道沿い。駅（山側の改札）から舞姫まで約600m、舞姫〜真澄は約500m。「駅から」は直線距離からの目安。試飲は営業終了の30分前まで（本金は16:45）。</p>
  <div class="scroll"><table id="kura"></table></div>
  <p class="note">ごくらくセットの引換は上諏訪駅内の諏訪市観光案内所（<a href="tel:0266580120">0266-58-0120</a>）。出典: 諏訪五蔵公式（11月の営業内容）</p>
 </section>
@@ -185,15 +190,36 @@ const getJSON=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('
 const fail=(id,e)=>fill(id,[row(['取得できませんでした（'+e.message+'）'])]);
 
 const KURA=[
- ['1','舞姫','株式会社舞姫','諏訪市諏訪2-9-25','0266-52-0078','9:30〜17:00'],
- ['2','麗人','麗人酒造','諏訪市諏訪2-9-21','0266-52-3121','9:00〜17:00（日曜休）'],
- ['3','本金','酒ぬのや本金酒造','諏訪市諏訪2-8-21','0266-58-0161','平日 9:00〜17:00（火曜は午後休）'],
- ['4','横笛','伊東酒造','諏訪市諏訪2-3-6','0266-52-0108','10:00〜17:00'],
- ['5','真澄','宮坂醸造（セラ真澄）','諏訪市元町1-16','0266-52-6161','10:00〜17:00（水曜休）'],
+ ['1','舞姫','株式会社舞姫','諏訪市諏訪2-9-25','0266-52-0078','9:30〜17:00','約9分'],
+ ['2','麗人','麗人酒造','諏訪市諏訪2-9-21','0266-52-3121','9:00〜17:00（日曜休）','約10分'],
+ ['3','本金','酒ぬのや本金酒造','諏訪市諏訪2-8-21','0266-58-0161','平日 9:00〜17:00（火曜は午後休）','約11分'],
+ ['4','横笛','伊東酒造','諏訪市諏訪2-3-6','0266-52-0108','10:00〜17:00','約11分'],
+ ['5','真澄','宮坂醸造（セラ真澄）','諏訪市元町1-16','0266-52-6161','10:00〜17:00（水曜休）','約15分'],
 ];
 const gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
-fill('kura',[row(['','蔵','営業','電話','地図'].map(t=>({text:t,th:1}))),...KURA.map(([n,name,co,addr,tel,hours])=>
- row([{text:n,cls:'t'},{text:name,sub:co+'・'+addr},hours,{text:tel,href:'tel:'+tel.replace(/-/g,'')},{text:'地図',href:gmap(co+' 長野県'+addr)}]))]);
+fill('kura',[row(['','蔵','駅から','営業','電話','地図'].map(t=>({text:t,th:1}))),...KURA.map(([n,name,co,addr,tel,hours,walk])=>
+ row([{text:n,cls:'t'},{text:name,sub:co+'・'+addr},{text:walk,cls:'num'},hours,{text:tel,href:'tel:'+tel.replace(/-/g,'')},{text:'地図',href:gmap(co+' 長野県'+addr)}]))]);
+
+// 位置図: 座標は国土地理院の住所検索で取得。アルプス食堂は丁目までしか引けないので地図には載せない
+const SPOTS=[
+ ['1','舞姫',36.042549,138.120224,'#c8432b'],['2','麗人',36.042118,138.120636,'#c8432b'],
+ ['3','本金',36.041759,138.121109,'#c8432b'],['4','横笛',36.041672,138.121048,'#c8432b'],
+ ['5','真澄',36.039528,138.122910,'#c8432b'],
+ ['宿','ルーピアイン南湖',36.049652,138.114838,'#2b5f73'],['う','古畑',36.045826,138.113907,'#2b5f73'],
+ ['駅','上諏訪駅',36.04667,138.11639,'#1d2624'],
+];
+try{
+ const m=L.map('lmap',{scrollWheelZoom:false});
+ L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{maxZoom:18,attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>'}).addTo(m);
+ const ll=SPOTS.map(([k,name,lat,lon,col],i)=>{
+  const mk=L.marker([lat,lon],{icon:L.divIcon({className:'',html:`<div class="pin" style="background:${col}">${k}</div>`,iconSize:[30,30],iconAnchor:[15,15]}),zIndexOffset:k==='3'?100:0}).addTo(m);
+  mk.bindTooltip(name,{permanent:true,direction:k==='4'||k==='1'?'left':'right',offset:[k==='4'||k==='1'?-14:14,0],className:'lbl'});
+  return[lat,lon]});
+ m.fitBounds(ll,{padding:[24,24]});
+}catch(e){$('lmap').textContent='地図を読み込めませんでした'}
+$('walk').href='https://www.google.com/maps/dir/?api=1&travelmode=walking&origin='+encodeURIComponent('上諏訪駅')+
+ '&destination='+encodeURIComponent('宮坂醸造 長野県諏訪市元町1-16')+'&waypoints='+
+ ['株式会社舞姫 長野県諏訪市諏訪2-9-25','麗人酒造 長野県諏訪市諏訪2-9-21','酒ぬのや本金酒造 長野県諏訪市諏訪2-8-21','伊東酒造 長野県諏訪市諏訪2-3-6'].map(encodeURIComponent).join('%7C');
 
 function plan(){
  const now=new Date();let cur=-1;PLAN.forEach((p,i)=>{if(p.t<=now)cur=i});
