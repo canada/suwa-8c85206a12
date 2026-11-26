@@ -44,6 +44,10 @@ td small{display:block;font-size:13px;color:var(--sub)}
 tr.bad td{background:var(--warn-soft)}
 .bad-text{color:var(--warn);font-weight:700}
 tr.done td{color:var(--faint)}tr.done .t{color:var(--faint)}
+tr.past td,span.past{opacity:.45}
+tr.past td:first-child::after{content:" 済";font-size:11px;font-weight:400}
+tr.now td{box-shadow:inset 0 2px 0 var(--accent),inset 0 -2px 0 var(--accent)}
+tr.now td:first-child::after{content:" いま";font-size:11px;color:var(--accent)}
 tr.cur td{background:var(--accent-soft)}
 .note{margin:8px 0 0;font-size:13px;color:var(--faint)}
 .warnbox{border-left:4px solid var(--rule);padding:4px 0 4px 12px}
@@ -95,7 +99,8 @@ footer{padding:24px 20px 48px;margin-top:20px;border-top:1px solid var(--rule);f
 <section>
  <h2>3時間ごと <small id="hourlyAt"></small></h2>
  <div class="scroll"><table id="hourly"><tr><td>読み込み中</td></tr></table></div>
- <p class="note">天気は長野県中部、気温は松本、降水確率は6時間ごとの値。日の出 6:35・日の入り 16:34</p>
+ <p class="note">天気は長野県中部、気温は松本、降水確率は6時間ごとの値。薄い行は過ぎた時間帯、線で囲んだ行がいま。日の出 6:35・日の入り 16:34</p>
+ <p class="note">気象庁の予報は毎日5時・11時・17時に発表。このページは開いた時と5分ごとに最新の発表を取り直します。</p>
 </section>
 
 <section>
@@ -260,7 +265,9 @@ async function jma(){
    const d=t.slice(0,10),mx=T[d+'max'],mn=T[d+'min'];
    const tt=mx&&mn&&mx!==mn?mx+'° / '+mn+'°':mx?mx+'°':mn?'– / '+mn+'°':'';
    return row([{text:+d.slice(5,7)+'/'+ +d.slice(8),cls:'t'},{...wxCell(a0.weatherCodes[i],a0.weathers[i].replace(/　/g,' '),a0.winds[i].replace(/　/g,' ')),cls:'wx day'},{text:tt,cls:'num'}])})]);
-  $('pops').textContent='降水確率 '+ts[1].timeDefines.map((t,i)=>+t.slice(8,10)+'日'+ +t.slice(11,13)+'時 '+a1.pops[i]+'%').join('　');
+  const now=Date.now();
+  $('pops').replaceChildren('降水確率 ',...ts[1].timeDefines.map((t,i)=>el('span',{className:new Date(t).getTime()+6*3600e3<=now?'past':'',
+   textContent:+t.slice(8,10)+'日'+ +t.slice(11,13)+'時 '+a1.pops[i]+'%　'})));
   $('jmaAt').textContent='気象庁 '+Number(j.reportDatetime.slice(8,10))+'日'+j.reportDatetime.slice(11,16)+' 発表';
  }catch(e){fail('jma',e)}
 }
@@ -273,11 +280,11 @@ async function hourly(){
   const popAt=d=>{let r=null;for(const[t,p]of P)if(t<=d)r=p;return r};
   const pt=v.pointTimeSeries,TMP={};pt.timeDefines.forEach((t,i)=>{TMP[t.dateTime]=pt.temperature[i]});
   const A=v.areaTimeSeries,now=Date.now(),rows=[row(['時刻','天気','気温','降水確率','風'].map(t=>({text:t,th:1})))];
-  A.timeDefines.forEach((t,i)=>{const d=new Date(t.dateTime);if(d<now-3*3600e3)return;
+  A.timeDefines.forEach((t,i)=>{const d=new Date(t.dateTime),when=d<=now-3*3600e3?'past':d<=now?'now':'';
    const wx=A.weather[i],pop=popAt(d),w=A.wind[i],tmp=TMP[t.dateTime],wet=/雨|雪/.test(wx)||(pop??0)>=50;
    const td=wxCell(ICON3[wx],wx);
    rows.push(row([{text:+t.dateTime.slice(8,10)+'日 '+ +t.dateTime.slice(11,13)+'時',cls:'t'},td,{text:tmp==null||tmp===''?'–':tmp+'°',cls:'num'},
-    {text:pop==null?'–':pop+'%',cls:'num'+((pop??0)>=50?' bad-text':'')},{text:w.direction+' '+w.range.replace(' ','〜')+'m/s',cls:'num'}],wet?'bad':''))});
+    {text:pop==null?'–':pop+'%',cls:'num'+((pop??0)>=50?' bad-text':'')},{text:w.direction+' '+w.range.replace(' ','〜')+'m/s',cls:'num'}],[wet?'bad':'',when].join(' ')))});
   fill('hourly',rows);
   $('hourlyAt').textContent='気象庁 '+Number(v.reportDateTime.slice(8,10))+'日'+v.reportDateTime.slice(11,16)+' 発表';
  }catch(e){fail('hourly',e)}
