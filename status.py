@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Yahoo!路線情報から対象路線の運行状況を取って status.json に書く。"""
+"""運行情報（Yahoo!路線情報・JR東日本）と高速道路の規制（Yahoo!道路交通情報）を取って status.json に書く。"""
 import html, json, re, urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -14,23 +14,76 @@ LINES = [
     ("4", "中央本線[高尾～大月]", "JR中央本線 高尾〜大月"),
     ("5", "中央本線[大月～塩尻]", "JR中央本線 大月〜塩尻"),
 ]
+AZUSA = "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
+ROADS = [("中央道", "https://roadway.yahoo.co.jp/traffic/road/1033006/list"),
+         ("長野道", "https://roadway.yahoo.co.jp/traffic/pref/20/road/1039006/list")]
+NEAR = re.compile("諏訪|岡谷|茅野|小淵沢|富士見|伊北|塩尻|辰野|花岡")
 
 
-def area(n):
-    req = urllib.request.Request(f"https://transit.yahoo.co.jp/diainfo/area/{n}", headers={"User-Agent": "Mozilla/5.0"})
-    s = urllib.request.urlopen(req, timeout=20).read().decode("utf-8")
-    rows = {}
-    for href, name, status, detail in re.findall(
-            r'<tr><td><a href="(/diainfo/[^"]+)">([^<]+)</a></td><td>(?:<[^>]+>)*([^<]+)(?:<[^>]+>)*</td><td>([^<]*)</td></tr>', s):
-        rows[html.unescape(name)] = (status.strip(), html.unescape(detail.strip()), "https://transit.yahoo.co.jp" + href)
-    return rows
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    return urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "replace")
 
 
-pages = {n: area(n) for n in {a for a, _, _ in LINES}}
-out = []
-for a, key, label in LINES:
-    status, detail, url = pages[a].get(key, ("取得できず", "", "https://transit.yahoo.co.jp/diainfo/area/" + a))
-    out.append({"name": label, "status": status, "detail": detail, "url": url})
+def text(s):
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", s))).strip()
+
+
+def yahoo_lines():
+    pages = {}
+    for n in {a for a, _, _ in LINES}:
+        rows = {}
+        for href, name, status, detail in re.findall(
+                r'<tr><td><a href="(/diainfo/[^"]+)">([^<]+)</a></td><td>(.*?)</td><td>(.*?)</td></tr>', get(f"https://transit.yahoo.co.jp/diainfo/area/{n}")):
+            rows[html.unescape(name)] = (text(status), text(detail), "https://transit.yahoo.co.jp" + href)
+        pages[n] = rows
+    out = []
+    for a, key, label in LINES:
+        status, detail, url = pages[a].get(key, ("取得できず", "", f"https://transit.yahoo.co.jp/diainfo/area/{a}"))
+        out.append({"name": label, "status": status, "detail": detail, "url": url})
+    return out
+
+
+def azusa():
+    s = get(AZUSA)
+    out = []
+    for name, status, note in re.findall(r'traininfo-routes__name">([^<]+)</span>.*?traininfo-line-info__status[^>]*>\s*<span>([^<]+)</span>'
+                                         r'.*?traininfo-routes__note">(.*?)</div>', s, re.S):
+        out.append({"name": "特急" + text(name), "status": text(status), "detail": text(note), "url": AZUSA})
+    m = re.search(r"<h2>運休情報</h2>(.*?)</section>", s, re.S)
+    note = text(m.group(1)) if m else ""
+    return [x for x in out if "あずさ" in x["name"]], note
+
+
+def roads():
+    out = []
+    for road, url in ROADS:
+        s = get(url)
+        upd = re.search(r'update-time">([^<]+)<', s)
+        for lane, table in re.findall(r'<h2[^>]*class="ttl-label"[^>]*>([^<]+)</h2>\s*<table class="rinfo-table">(.*?)</table>', s, re.S):
+            for tr in re.findall(r"<tbody>.*?</tbody>", table, re.S)[:1]:
+                for row in re.findall(r"<tr>(.*?)</tr>", tr, re.S):
+                    cells = [text(c) for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+                    if len(cells) >= 3:
+                        where = " ".join(cells[:-2])
+                        out.append({"road": text(lane), "where": where, "what": cells[-2].replace("[!] ", ""),
+                                    "why": cells[-1], "near": bool(NEAR.search(where)), "url": url})
+        if upd:
+            out_time = upd.group(1)
+    return out, out_time if ROADS else ""
+
+
+data = {"updated": datetime.now(JST).isoformat(timespec="minutes")}
+for key, fn in [("lines", yahoo_lines), ("azusa", azusa), ("roads", roads)]:
+    try:
+        data[key] = fn()
+    except Exception as e:
+        data[key] = None
+        data.setdefault("errors", []).append(f"{key}: {e}")
+if data["azusa"]:
+    data["azusa"], data["azusa_note"] = data["azusa"]
+if data["roads"]:
+    data["roads"], data["roads_at"] = data["roads"]
 
 with open("status.json", "w", encoding="utf-8") as f:
-    json.dump({"updated": datetime.now(JST).isoformat(timespec="minutes"), "lines": out}, f, ensure_ascii=False, indent=1)
+    json.dump(data, f, ensure_ascii=False, indent=1)

@@ -4,47 +4,133 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light dark">
 <title>諏訪旅ライブ</title>
 <style>
-body{font:15px/1.5 -apple-system,"Hiragino Sans",sans-serif;margin:0 auto;max-width:640px;padding:12px 16px 40px;background:#fff;color:#111}
-h1{font-size:20px;margin:4px 0}h2{font-size:16px;margin:20px 0 6px;border-bottom:1px solid #ccc}
-table{border-collapse:collapse;width:100%}td,th{padding:5px 6px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
-small,.sub{color:#666}.bad{background:#fde8e4}.done{color:#aaa}.box{background:#eef4f6;padding:10px 12px;border-radius:8px}
-#next b{font-size:22px}a{color:#0a5a7a}.foot{color:#888;font-size:12px;margin-top:20px}
-@media(prefers-color-scheme:dark){body{background:#111;color:#eee}td,th{border-color:#333}.box{background:#1d2b30}.bad{background:#4a2420}small,.sub,.done{color:#999}a{color:#7cc}}
+:root{
+  --bg:#f7f6f2;--paper:#fffefb;--ink:#1d2624;--sub:#5d6764;--faint:#8a928f;
+  --rule:#e3e1da;--accent:#2b5f73;--accent-soft:#e6eef1;--ok:#3d7a5a;--warn:#b5432c;--warn-soft:#fbece7;
+  --serif:"Hiragino Mincho ProN","Yu Mincho",serif;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141817;--paper:#1b201f;--ink:#e7ebe9;--sub:#a4adaa;--faint:#7b8582;
+  --rule:#2d3432;--accent:#7fb3c6;--accent-soft:#22313a;--ok:#7fc09c;--warn:#f08f78;--warn-soft:#3a2420;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141817;--paper:#1b201f;--ink:#e7ebe9;--sub:#a4adaa;--faint:#7b8582;
+  --rule:#2d3432;--accent:#7fb3c6;--accent-soft:#22313a;--ok:#7fc09c;--warn:#f08f78;--warn-soft:#3a2420;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.7 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-feature-settings:"palt" 1}
+a{color:var(--accent);text-underline-offset:3px}
+.page{max-width:640px;margin:0 auto;background:var(--paper);min-height:100vh}
+header{padding:20px 20px 18px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.kicker{margin:0;font-size:13px;color:var(--sub);letter-spacing:.04em}
+h1{margin:4px 0 0;font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.35}
+#theme{flex:none;border:1px solid var(--rule);background:var(--paper);color:var(--sub);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;min-height:36px}
+section{padding:24px 20px 4px}
+h2{margin:0 0 8px;font-size:19px;font-weight:700;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{font-size:13px;font-weight:400;color:var(--faint)}
+.next{margin:16px 20px 0;background:var(--accent-soft);border-radius:8px;padding:14px 16px}
+.next small{display:block;font-size:13px;color:var(--sub)}
+.next b{font-size:26px;font-variant-numeric:tabular-nums;color:var(--accent);margin-right:8px}
+.next span{font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:9px 10px 9px 0;border-top:1px solid var(--rule);text-align:left;vertical-align:top;white-space:nowrap}
+tr:first-child th,tr:first-child td{border-top:0}
+th{font-size:13px;font-weight:400;color:var(--faint)}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+td.wrap{white-space:normal;min-width:12em}
+td small{display:block;font-size:13px;color:var(--sub);white-space:normal}
+.t{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.ok{color:var(--ok);font-weight:600}
+tr.bad td{background:var(--warn-soft)}
+.bad-text{color:var(--warn);font-weight:700}
+tr.done td{color:var(--faint)}tr.done .t{color:var(--faint)}
+tr.cur td{background:var(--accent-soft)}
+.near td:first-child::before{content:"● ";color:var(--warn)}
+.note{margin:8px 0 0;font-size:13px;color:var(--faint)}
+.warnbox{border-left:4px solid var(--rule);padding:4px 0 4px 12px}
+.warnbox.on{border-color:var(--warn)}
+.radar{position:relative;height:340px;overflow:hidden;border-radius:8px;background:var(--rule);margin-top:8px}
+.radar .grid{position:absolute;display:grid;grid-template-columns:repeat(4,256px);grid-template-rows:repeat(4,256px)}
+.radar img{width:256px;height:256px;display:block}
+.radar .rain{opacity:.85}
+.radar .pin{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#c8432b;border:2px solid #fff;box-shadow:0 0 0 1px #0004}
+:root[data-theme="dark"] .radar .base{filter:invert(.9) hue-rotate(180deg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .radar .base{filter:invert(.9) hue-rotate(180deg)}}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;min-height:40px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;font:inherit;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+ul.links{list-style:none;margin:0;padding:0}
+ul.links li{border-top:1px solid var(--rule)}ul.links li:first-child{border-top:0}
+ul.links a{display:block;padding:10px 0}
+footer{padding:24px 20px 48px;margin-top:20px;border-top:1px solid var(--rule);font-size:13px;color:var(--faint)}
 </style>
 </head>
 <body>
-<h1>諏訪旅ライブ 11/27–28</h1>
-<div class="box" id="next"></div>
+<main class="page">
+<header>
+ <div><p class="kicker">11/27 金 – 11/28 土・上諏訪</p><h1>諏訪旅ライブ</h1></div>
+ <button id="theme" type="button">表示: 自動</button>
+</header>
+<div class="next" id="next"></div>
 
-<h2>運行情報</h2>
-<table id="trains"><tr><td>読み込み中</td></tr></table>
-<p class="sub"><small id="trainsAt"></small></p>
+<section>
+ <h2>運行情報 <small id="trainsAt"></small></h2>
+ <div class="scroll"><table id="trains"><tr><td>読み込み中</td></tr></table></div>
+ <p class="note">JR東日本は30分以上の遅れで「遅延」表示。列車ごとの遅れはJR東日本アプリで確認できます。</p>
+</section>
 
-<h2>警報・注意報（諏訪市）</h2>
-<p id="warn">読み込み中</p>
+<section>
+ <h2>警報・注意報 <small>諏訪市</small></h2>
+ <div class="warnbox" id="warn">読み込み中</div>
+</section>
 
-<h2>気象庁の予報（長野県中部）</h2>
-<table id="jma"><tr><td>読み込み中</td></tr></table>
-<p><small id="jmaNote"></small></p>
+<section>
+ <h2>天気 <small id="jmaAt"></small></h2>
+ <div class="scroll"><table id="jma"><tr><td>読み込み中</td></tr></table></div>
+ <p class="note" id="pops"></p>
+</section>
 
-<h2>3時間ごと（上諏訪付近）</h2>
-<table id="hourly"><tr><td>読み込み中</td></tr></table>
-<p><small id="sun"></small></p>
+<section>
+ <h2>3時間ごと <small>上諏訪付近</small></h2>
+ <div class="scroll"><table id="hourly"><tr><td>読み込み中</td></tr></table></div>
+ <p class="note" id="sun"></p>
+</section>
 
-<h2>行程</h2>
-<table id="plan"></table>
+<section>
+ <h2>行程</h2>
+ <div class="scroll"><table id="plan"></table></div>
+</section>
 
-<h2>リンク</h2>
-<ul>
-<li><a href="https://www.jma.go.jp/bosai/nowc/#zoom:10/lat:36.04/lon:138.11/colordepth:normal/elements:hrpns">雨雲レーダー（気象庁）</a></li>
-<li><a href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=200000">気象庁 長野県の予報</a></li>
-<li><a href="https://traininfo.jreast.co.jp/train_info/shinetsu.aspx">JR東日本 運行情報（信越）</a></li>
-<li><a href="https://www.jartic.or.jp/">道路交通情報 JARTIC（2日目ドライブ）</a></li>
-<li><a href="https://www.eki-net.com/">えきねっと</a></li>
-</ul>
-<p class="foot" id="foot"></p>
+<section>
+ <h2>雨雲レーダー <small id="radarAt"></small></h2>
+ <div class="radar" id="radar"><div class="grid" id="rgrid"></div><div class="pin" title="上諏訪"></div></div>
+ <div class="seg" id="rseg"><button type="button" data-k="0" aria-pressed="true">いま</button><button type="button" data-k="30">30分後</button><button type="button" data-k="60">60分後</button></div>
+ <p class="note">赤い点が上諏訪。気象庁 高解像度降水ナウキャスト・地理院タイル</p>
+</section>
+
+<section>
+ <h2>高速道路の規制 <small id="roadsAt"></small></h2>
+ <div class="scroll"><table id="roads"><tr><td>読み込み中</td></tr></table></div>
+ <p class="note">● は諏訪周辺。一般道（国道20号など）は下のGoogleマップの交通状況で。</p>
+</section>
+
+<section>
+ <h2>リンク</h2>
+ <ul class="links">
+  <li><a href="https://www.google.com/maps/@36.045,138.115,13z/data=!5m1!1e1">Googleマップ 交通状況（諏訪）</a></li>
+  <li><a href="https://www.jma.go.jp/bosai/nowc/#zoom:10/lat:36.04/lon:138.11/colordepth:normal/elements:hrpns">気象庁 雨雲の動き</a></li>
+  <li><a href="https://www.jma.go.jp/bosai/forecast/#area_type=offices&area_code=200000">気象庁 長野県の予報</a></li>
+  <li><a href="https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion">JR東日本 あずさの運行情報</a></li>
+  <li><a href="https://roadway.yahoo.co.jp/traffic/pref/20/list">Yahoo!道路交通情報 長野県</a></li>
+  <li><a href="https://www.eki-net.com/">えきねっと</a></li>
+ </ul>
+</section>
+<footer id="foot"></footer>
+</main>
 
 <script>
 const PLAN=[
@@ -70,66 +156,109 @@ const $=id=>document.getElementById(id);
 const tz={timeZone:'Asia/Tokyo'};
 const hm=d=>d.toLocaleTimeString('ja-JP',{...tz,hour:'2-digit',minute:'2-digit'});
 const md=d=>d.toLocaleDateString('ja-JP',{...tz,month:'numeric',day:'numeric'});
-function row(cells,cls){const tr=document.createElement('tr');if(cls)tr.className=cls;
- cells.forEach(c=>{if(typeof c!=='object')c={text:String(c)};const td=document.createElement(c.th?'th':'td');
-  if(c.href){const a=document.createElement('a');a.href=c.href;a.textContent=c.text;td.append(a)}else td.textContent=c.text??c;
-  if(c.sub){const s=document.createElement('small');s.textContent=' '+c.sub;td.append(document.createElement('br'),s)}
-  tr.append(td)});return tr}
-function fill(id,rows){$(id).replaceChildren(...rows)}
-const getJSON=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+const el=(tag,props={},...kids)=>{const e=Object.assign(document.createElement(tag),props);e.append(...kids.filter(k=>k!=null&&k!==''));return e};
+// c: 文字列 | {text, href, sub, cls, th}
+function row(cells,cls){return el('tr',{className:cls||''},...cells.map(c=>{
+ if(typeof c!=='object')c={text:String(c)};
+ const td=el(c.th?'th':'td',{className:c.cls||''});
+ td.append(c.href?el('a',{href:c.href,textContent:c.text}):c.text);
+ if(c.sub)td.append(el('small',{textContent:c.sub}));return td}))}
+const fill=(id,rows)=>$(id).replaceChildren(...rows);
+const getJSON=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+const fail=(id,e)=>fill(id,[row(['取得できませんでした（'+e.message+'）'])]);
+
+// 表示テーマ
+const THEMES=['auto','light','dark'],TL={auto:'自動',light:'ライト',dark:'ダーク'};
+let theme='auto';try{theme=localStorage.getItem('theme')||'auto'}catch(e){}
+function applyTheme(){if(theme==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=theme;$('theme').textContent='表示: '+TL[theme]}
+$('theme').onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%3];try{localStorage.setItem('theme',theme)}catch(e){}applyTheme()};
+applyTheme();
 
 function plan(){
- const now=new Date();
- fill('plan',PLAN.map(p=>row([md(p.t)+' '+hm(p.t),p.w],p.t<now?'done':'')));
- const n=PLAN.find(p=>p.t>now),b=$('next');
- if(!n){b.textContent='旅は終わりました。おつかれさま';return}
+ const now=new Date();let cur=-1;PLAN.forEach((p,i)=>{if(p.t<=now)cur=i});
+ fill('plan',PLAN.map((p,i)=>row([{text:md(p.t)+' '+hm(p.t),cls:'t'},{text:p.w,cls:'wrap'}],i<cur?'done':i===cur?'cur':'')));
+ const n=PLAN[cur+1],b=$('next');
+ if(!n){b.replaceChildren(el('span',{textContent:'旅は終わりました。おつかれさま'}));return}
  const m=Math.round((n.t-now)/60000);
- b.replaceChildren();const s=document.createElement('small');s.textContent='次の予定';
- const t=document.createElement('b');t.textContent=md(n.t)+' '+hm(n.t);
- const r=document.createElement('small');r.textContent='あと '+(m>=60?Math.floor(m/60)+'時間':'')+(m%60)+'分';
- b.append(s,document.createElement('br'),t,' '+n.w,document.createElement('br'),r);
+ b.replaceChildren(el('small',{textContent:'次の予定・あと '+(m>=60?Math.floor(m/60)+'時間':'')+(m%60)+'分'}),el('b',{textContent:hm(n.t)}),el('span',{textContent:n.w}));
 }
 
-async function trains(){
+async function status(){
  try{const d=await getJSON('status.json?'+Date.now());
-  fill('trains',d.lines.map(l=>row([l.name,{text:l.status,href:l.url,sub:l.status==='平常運転'?'':l.detail}],l.status==='平常運転'?'':'bad')));
-  $('trainsAt').textContent='Yahoo!路線情報より '+d.updated.slice(5,16).replace('T',' ')+' 取得（15分おき目安）';
- }catch(e){fill('trains',[row(['取得失敗: '+e.message])])}
+  const L=[...(d.azusa||[]),...(d.lines||[])];
+  fill('trains',L.map(l=>{const ok=l.status==='平常運転';
+   return row([l.name,{text:l.status,href:l.url,cls:ok?'ok':'bad-text',sub:ok?'':l.detail}],ok?'':'bad')}));
+  if(d.azusa_note&&!/ありません/.test(d.azusa_note))$('trains').append(row([{text:'あずさ 運休',cls:'bad-text'},{text:d.azusa_note,cls:'wrap'}],'bad'));
+  $('trainsAt').textContent=d.updated.slice(11,16)+' 取得';
+  const R=d.roads||[];
+  fill('roads',R.length?[row([{text:'路線',th:1},{text:'区間',th:1},{text:'内容',th:1},{text:'原因',th:1}]),
+   ...R.sort((a,b)=>b.near-a.near).map(r=>row([r.road,r.where,{text:r.what,cls:/通行止/.test(r.what)?'bad-text':''},r.why],r.near?'near':''))]:[row(['中央道・長野道に規制はありません'])]);
+  $('roadsAt').textContent=(d.roads_at||'').replace(/^\d+月\d+日\s*/,'').replace(' 現在','')+' JARTIC';
+ }catch(e){fail('trains',e);fail('roads',e)}
 }
 
 async function warn(){
  try{const w=await getJSON('https://www.jma.go.jp/bosai/warning/data/warning/200000.json');
   let names=[];for(const at of w.areaTypes)for(const a of at.areas)if(a.code==='2020600')
    names=(a.warnings||[]).filter(x=>WARN[x.code]&&x.status!=='解除').map(x=>WARN[x.code]);
-  const p=$('warn');p.replaceChildren();const b=document.createElement('b');b.textContent=names.join('・')||'なし';
-  p.className=names.length?'bad':'';p.append(b);
-  if(w.headlineText){const s=document.createElement('small');s.textContent=w.headlineText;p.append(document.createElement('br'),s)}
- }catch(e){$('warn').textContent='取得失敗: '+e.message}
+  const box=$('warn');box.className='warnbox'+(names.length?' on':'');
+  box.replaceChildren(el('b',{className:names.length?'bad-text':'',textContent:names.join('・')||'なし'}),
+   w.headlineText?el('p',{className:'note',textContent:w.headlineText}):'');
+ }catch(e){$('warn').textContent='取得できませんでした（'+e.message+'）'}
 }
 
 async function jma(){
  try{const j=(await getJSON('https://www.jma.go.jp/bosai/forecast/data/forecast/200000.json'))[0],ts=j.timeSeries;
   const a0=ts[0].areas.find(a=>a.area.name==='中部'),a1=ts[1].areas.find(a=>a.area.name==='中部'),a2=ts[2].areas.find(a=>a.area.name==='諏訪');
   const T={};ts[2].timeDefines.forEach((t,i)=>{T[t.slice(0,10)+(t.slice(11,13)==='09'?'max':'min')]=a2.temps[i]});
-  fill('jma',ts[0].timeDefines.map((t,i)=>{const d=t.slice(0,10),mx=T[d+'max'],mn=T[d+'min'];
-   const tt=mx&&mn&&mx!==mn?mx+'° / '+mn+'°':mx?'最高 '+mx+'°':mn?'最低 '+mn+'°':'';
-   return row([d.slice(5).replace('-','/'),{text:a0.weathers[i].replace(/　/g,' '),sub:a0.winds[i].replace(/　/g,' ')},tt])}));
-  $('jmaNote').textContent='降水確率: '+ts[1].timeDefines.map((t,i)=>t.slice(8,10)+'日'+t.slice(11,13)+'時 '+a1.pops[i]+'%').join(' / ')+'　発表 '+j.reportDatetime.slice(5,16).replace('T',' ')+'・気温は諏訪';
- }catch(e){fill('jma',[row(['取得失敗: '+e.message])])}
+  fill('jma',[row([{text:'日',th:1},{text:'天気（長野県中部）',th:1},{text:'最高/最低',th:1}]),...ts[0].timeDefines.map((t,i)=>{
+   const d=t.slice(0,10),mx=T[d+'max'],mn=T[d+'min'];
+   const tt=mx&&mn&&mx!==mn?mx+'° / '+mn+'°':mx?mx+'°':mn?'– / '+mn+'°':'';
+   return row([{text:+d.slice(5,7)+'/'+ +d.slice(8),cls:'t'},{text:a0.weathers[i].replace(/　/g,' '),sub:a0.winds[i].replace(/　/g,' '),cls:'wrap'},{text:tt,cls:'num'}])})]);
+  $('pops').textContent='降水確率 '+ts[1].timeDefines.map((t,i)=>+t.slice(8,10)+'日'+ +t.slice(11,13)+'時 '+a1.pops[i]+'%').join('　');
+  $('jmaAt').textContent='気象庁 '+Number(j.reportDatetime.slice(8,10))+'日'+j.reportDatetime.slice(11,16)+' 発表';
+ }catch(e){fail('jma',e)}
 }
 
 async function hourly(){
  try{const h=await getJSON('https://api.open-meteo.com/v1/forecast?latitude=36.045&longitude=138.115&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&daily=sunrise,sunset&timezone=Asia%2FTokyo&start_date=2026-11-27&end_date=2026-11-28');
-  const H=h.hourly,now=Date.now(),rows=[row([{text:'時刻',th:1},{text:'天気',th:1},{text:'気温',th:1},{text:'雨',th:1},{text:'風',th:1}])];
+  const H=h.hourly,now=Date.now(),rows=[row(['時刻','天気','気温','雨','風'].map(t=>({text:t,th:1})))];
   H.time.forEach((t,i)=>{const d=new Date(t+':00+09:00'),hr=+t.slice(11,13);
    if(hr%3||hr<6||d<now-3*3600e3)return;const pop=H.precipitation_probability[i];
-   rows.push(row([t.slice(8,10)+'日 '+hr+'時',WMO[H.weather_code[i]]??String(H.weather_code[i]),Math.round(H.temperature_2m[i])+'°',pop+'%',Math.round(H.wind_speed_10m[i]/3.6)+'m/s'],pop>=50?'bad':''))});
+   rows.push(row([{text:+t.slice(8,10)+'日 '+hr+'時',cls:'t'},WMO[H.weather_code[i]]??String(H.weather_code[i]),
+    {text:Math.round(H.temperature_2m[i])+'°',cls:'num'},{text:pop+'%',cls:'num'+(pop>=50?' bad-text':'')},{text:Math.round(H.wind_speed_10m[i]/3.6)+'m/s',cls:'num'}],pop>=50?'bad':''))});
   fill('hourly',rows);
-  const D=h.daily;$('sun').textContent=D.time.map((t,i)=>t.slice(8)+'日 日の出 '+D.sunrise[i].slice(11)+'・日の入り '+D.sunset[i].slice(11)).join(' / ')+'・Open-Meteo';
- }catch(e){fill('hourly',[row(['取得失敗: '+e.message])])}
+  const D=h.daily;$('sun').textContent=D.time.map((t,i)=>+t.slice(8)+'日 日の出 '+D.sunrise[i].slice(11)+'・日の入り '+D.sunset[i].slice(11)).join('　')+'（Open-Meteo）';
+ }catch(e){fail('hourly',e)}
 }
 
-function all(){plan();trains();warn();jma();hourly();$('foot').textContent='このページを開いた時と5分ごとに再取得 '+hm(new Date())}
+// 雨雲レーダー: z9 の 4x4 タイル（x450-453, y199-202）。上諏訪はタイル座標 (452.43, 200.93)
+const Z=9,X0=450,Y0=199,SX=(452.43-X0)*256,SY=(200.93-Y0)*256;
+let rk=0,rtimes=null;
+function place(){const r=$('radar'),g=$('rgrid');g.style.left=(r.clientWidth/2-SX)+'px';g.style.top=(r.clientHeight/2-SY)+'px'}
+function drawRadar(){
+ if(!rtimes)return;const t=rk===0?rtimes.n1[0]:rtimes.n2.find(x=>x.validtime===rtimes.at(rk))||rtimes.n1[0];
+ const g=$('rgrid');g.replaceChildren();
+ for(let y=Y0;y<Y0+4;y++)for(let x=X0;x<X0+4;x++){
+  const cell=el('div',{style:'position:relative'});
+  cell.append(el('img',{className:'base',src:`https://cyberjapandata.gsi.go.jp/xyz/pale/${Z}/${x}/${y}.png`,alt:''}),
+   el('img',{className:'rain',src:`https://www.jma.go.jp/bosai/jmatile/data/nowc/${t.basetime}/none/${t.validtime}/surf/hrpns/${Z}/${x}/${y}.png`,alt:'',style:'position:absolute;inset:0'}));
+  g.append(cell)}
+ const v=t.validtime,d=new Date(Date.UTC(+v.slice(0,4),+v.slice(4,6)-1,+v.slice(6,8),+v.slice(8,10),+v.slice(10,12)));
+ $('radarAt').textContent=hm(d)+(rk?' の予測':' の観測');place();
+}
+async function radar(){
+ try{const [n1,n2]=await Promise.all(['N1','N2'].map(k=>getJSON(`https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_${k}.json`)));
+  const b=n1[0].validtime,base=Date.UTC(+b.slice(0,4),+b.slice(4,6)-1,+b.slice(6,8),+b.slice(8,10),+b.slice(10,12));
+  const fmt=ms=>new Date(ms).toISOString().replace(/\D/g,'').slice(0,14);
+  rtimes={n1,n2,at:k=>fmt(base+k*60000)};drawRadar();
+ }catch(e){$('radarAt').textContent='取得できませんでした'}
+}
+$('rseg').onclick=e=>{const b=e.target.closest('button');if(!b)return;rk=+b.dataset.k;
+ $('rseg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawRadar()};
+addEventListener('resize',place);
+
+function all(){plan();status();warn();jma();hourly();radar();$('foot').textContent='開いた時と5分ごとに自動更新（最終 '+hm(new Date())+'）・運行情報と道路は約15分おきに取得'}
 all();setInterval(all,300000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)all()});
 </script>
