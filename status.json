@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-28T02:00+09:00",
+ "updated": "2026-11-28T02:10+09:00",
  "lines": [
   {
    "name": "西武池袋線",
-   "status": "列車遅延",
-   "detail": "22:50頃、みなとみらい線内で...",
+   "status": "平常運転",
+   "detail": "事故・遅延情報はありません",
    "url": "https://transit.yahoo.co.jp/diainfo/84/0"
   },
   {
@@ -50,14 +50,7 @@
    "url": "https://transit.yahoo.co.jp/diainfo/470/0"
   }
  ],
- "azusa": [
-  {
-   "name": "特急あずさ",
-   "status": "平常運転",
-   "detail": "",
-   "url": "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
-  }
- ],
+ "azusa": [],
  "azusa_note": "情報提供時間は4:00～翌2:00となっています。",
- "azusa_at": "2026-11-28T02:00+09:00"
+ "azusa_at": "2026-11-28T02:10+09:00"
 }
