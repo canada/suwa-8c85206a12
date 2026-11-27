@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-28T05:14+09:00",
+ "updated": "2026-11-28T05:20+09:00",
  "lines": [
   {
    "name": "西武池袋線",
@@ -21,8 +21,8 @@
   },
   {
    "name": "JR埼京線",
-   "status": "平常運転",
-   "detail": "事故・遅延情報はありません",
+   "status": "運転見合わせ",
+   "detail": "大宮駅での信号関係点検の影響で、...",
    "url": "https://transit.yahoo.co.jp/diainfo/50/0"
   },
   {
@@ -58,9 +58,6 @@
    "url": "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
   }
  ],
- "errors": [
-  "azusa: HTTP Error 403: Forbidden"
- ],
  "azusa_note": "現在、運休情報はありません。",
- "azusa_at": "2026-11-28T05:10+09:00"
+ "azusa_at": "2026-11-28T05:20+09:00"
 }
