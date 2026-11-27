@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-28T04:00+09:00",
+ "updated": "2026-11-28T04:10+09:00",
  "lines": [
   {
    "name": "西武池袋線",
@@ -50,7 +50,14 @@
    "url": "https://transit.yahoo.co.jp/diainfo/470/0"
   }
  ],
- "azusa": [],
+ "azusa": [
+  {
+   "name": "特急あずさ",
+   "status": "平常運転",
+   "detail": "",
+   "url": "https://traininfo.jreast.co.jp/train_info/express.aspx?group=azusa_kaiji_fujiexcursion"
+  }
+ ],
  "azusa_note": "現在、運休情報はありません。",
- "azusa_at": "2026-11-28T04:00+09:00"
+ "azusa_at": "2026-11-28T04:10+09:00"
 }
